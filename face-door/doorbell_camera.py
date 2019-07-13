@@ -134,6 +134,7 @@ def main_loop():
     # Track how long since we last saved a copy of our known faces to disk as a backup.
     number_of_faces_since_save = 0
 
+    count = 1
     while True:
         # Grab a single frame of video
         ret, frame = video_capture.read()
@@ -158,7 +159,7 @@ def main_loop():
             # If we found the face, label the face with some useful information.
             if metadata is not None:
                 time_at_door = datetime.now() - metadata['first_seen_this_interaction']
-                face_label = f"At door {int(time_at_door.total_seconds())}s"
+                face_label = f"Exist for {int(time_at_door.total_seconds())}s"
 
             # If this is a brand new face, add it to our list of known faces
             else:
@@ -183,10 +184,10 @@ def main_loop():
             left *= 4
 
             # Draw a box around the face
-            cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
+            cv2.rectangle(frame, (left, top), (right, bottom), (150, 0, 255), 2)
 
             # Draw a label with a name below the face
-            cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
+            cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 125, 255), cv2.FILLED)
             cv2.putText(frame, face_label, (left + 6, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
             print(face_label)
 
@@ -206,17 +207,21 @@ def main_loop():
                 visits = metadata['seen_count']
                 visit_label = f"{visits} visits"
                 if visits == 1:
-                    visit_label = "First visit"
+                    visit_label = "First sight"
                 cv2.putText(frame, visit_label, (x_position + 10, 170), cv2.FONT_HERSHEY_DUPLEX, 0.6, (255, 255, 255), 1)
             #print("number_of_recent_visitors: " , number_of_recent_visitors)
 
         if number_of_recent_visitors > 0:
-            cv2.putText(frame, "Visitors at Door", (5, 18), cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
+            cv2.putText(frame, "Visitors at Front", (5, 18), cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
 
 
 
         # Display the final frame of video with boxes drawn around each detected fames
         cv2.imshow('Video', frame)
+        if count > 20:
+            cv2.imwrite("test.jpg", frame)
+
+        count = count + 1
 
         # Hit 'q' on the keyboard to quit!
         if cv2.waitKey(1) & 0xFF == ord('q'):
